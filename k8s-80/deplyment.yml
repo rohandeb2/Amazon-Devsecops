@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: amazon-ns
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: amazon-ns
+  name: amazon-app-deployment
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: amazon-app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: amazon-app
+    spec:
+      containers:
+        - name: amazon-app-container
+          image: harishnshetty/amazon:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: amazon-ns
+  name: amazon-app-service
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: amazon-app
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: amazon-ns
+  name: myingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: amazon-app-service
+              port:
+                number: 80

@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: amazon-ns
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amazon-app-deployment
+  namespace: amazon-ns
+spec:
+  replicas: 3  # Adjust the number of replicas as needed
+  selector:
+    matchLabels:
+      app: amazon-app
+  template:
+    metadata:
+      labels:
+        app: amazon-app
+    spec:
+      containers:
+        - name: amazon-app-container
+          image: harishnshetty/amazon:latest  # Use your actual Docker image name and tag
+          ports:
+            - containerPort: 80  # The port your game app is listening on
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: amazon-app-service
+  namespace: amazon-ns
+spec:
+  selector:
+    app: amazon-app
+  ports:
+    - protocol: TCP
+      port: 80  # The port exposed by the service within the cluster
+      targetPort: 80  # The port your game app is listening on inside the pod
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myingress
+  namespace: amazon-ns
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/load-balancer-name: amazon-ns-alb
+    # Target Type and Listener Port
+
+
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:889501007925:certificate/cdde8532-d234-40e5-be52-b3c5689e4568 # Replace with your ACM certificate ARN
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+spec:
+  ingressClassName: alb
+  rules:
+    - host: rohandevops.co.in
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: amazon-app-service  # Or your main store frontend
+                port:
+                  number: 80
+
+      # 👇 Default catch-all (matches any host not listed above)
+    - host: ""
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: amazon-app-service # or your default frontend
+                port:
+                  number: 80

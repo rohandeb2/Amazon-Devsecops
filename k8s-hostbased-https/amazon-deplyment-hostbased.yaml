@@ -67,7 +67,7 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: rohandevops.co.in
+    - host: amazon.rohandevops.co.in
       http:
         paths:
           - path: /

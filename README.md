@@ -43,7 +43,15 @@ This project demonstrates a **complete DevSecOps pipeline** for deploying an Ama
 ### 🎥 Demo
 
 > Access the live application at: `https://amazon.rohandevops.co.in`
-
+<div align="center">
+  <img src="src/components/6.png" >
+</div>
+<div align="center">
+  <img src="src/components/7.png" >
+</div>
+<div align="center">
+  <img src="src/components/8.png" >
+</div>
 ---
 
 ## ✨ Features

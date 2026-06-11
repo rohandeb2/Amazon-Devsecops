@@ -1,6 +1,4 @@
-############################################
-# Security Group — Jenkins Access Control
-############################################
+
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-sg"
   description = "Controlled access for Jenkins, SonarQube and HTTP/HTTPS"
@@ -14,7 +12,6 @@ resource "aws_security_group" "jenkins_sg" {
       to_port     = ingress.value
       protocol    = "tcp"
 
-      # Replace with your IP for SSH in production
       cidr_blocks = ingress.value == 22 ? ["YOUR_IP/32"] : ["0.0.0.0/0"]
     }
   }
@@ -32,9 +29,6 @@ resource "aws_security_group" "jenkins_sg" {
   }
 }
 
-############################################
-# EC2 Instance — Jenkins + SonarQube Host
-############################################
 resource "aws_instance" "jenkins" {
   ami                    = var.ami_id
   instance_type          = "t3.large"

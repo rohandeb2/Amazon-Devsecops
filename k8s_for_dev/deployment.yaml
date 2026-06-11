@@ -26,7 +26,7 @@ spec:
         runAsUser: 1001
       containers:
         - name: amazon-app
-          image: harishnshetty/amazon:1.0.0
+          image: rohan700/amazon:1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
